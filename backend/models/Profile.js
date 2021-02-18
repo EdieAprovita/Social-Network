@@ -13,15 +13,19 @@ const profileSchema = new Schema({
 	},
 	company: {
 		type: String,
+		required: true,
 	},
 	website: {
 		type: String,
+		required: true,
 	},
 	location: {
 		type: String,
+		required: true,
 	},
 	status: {
 		type: String,
+		required: true,
 		required: true,
 	},
 	skills: {
@@ -30,9 +34,11 @@ const profileSchema = new Schema({
 	},
 	bio: {
 		type: String,
+		required: true,
 	},
 	githubusername: {
 		type: String,
+		required: true,
 	},
 	experience: [
 		{
