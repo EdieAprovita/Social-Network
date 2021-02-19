@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler')
 
 const Post = require('../models/Post')
 const User = require('../models/User')
+const checkObjectId = require('../middlewares/checkObjectId')
 
 // @desc Create a post
 // @route POST /api/posts
@@ -44,12 +45,12 @@ exports.getAllPosts = asyncHandler(async (req, res) => {
 // @route GET /api/posts/:id
 // @access Private
 
-exports.getPostById = asyncHandler(async (req, res) => {
+exports.getPostById = asyncHandler(checkObjectId('id'), async (req, res) => {
 	try {
 		const { id } = req.params
 		const post = await Post.findById(id)
 
-		if (!req.params.id.match(/^[0-9a-fA-F]{24}$/) || !post) {
+		if (!post) {
 			return res.status(404).json({ message: 'Sorry there is not a post found' })
 		}
 
@@ -63,12 +64,11 @@ exports.getPostById = asyncHandler(async (req, res) => {
 // @route DELETE /api/posts/:id
 // @access Private
 
-exports.deletePostById = asyncHandler(async (req, res) => {
+exports.deletePostById = asyncHandler(checkObjectId('id'), async (req, res) => {
 	try {
-		const { id } = req.params
-		const post = await Post.findById(id)
+		const post = await Post.findById(req.params.id)
 
-		if (!req.params.id.match(/^[0-9a-fA-F]{24}$/) || !post) {
+		if (!post) {
 			return res.status(404).json({ message: 'Sorry there is not a post found' })
 		}
 
@@ -87,16 +87,19 @@ exports.deletePostById = asyncHandler(async (req, res) => {
 // @route PUT /api/posts/like/:id
 // @access Private
 
-exports.likePost = asyncHandler(async (req, res) => {
+exports.likePost = asyncHandler(checkObjectId('id'), async (req, res) => {
 	try {
-		const { id } = req.params
-		const post = await Post.findById(id)
+		const post = await Post.findById(req.params.id)
 
 		if (post.likes.some(like => like.user.toString() === req.user.id)) {
 			return res.status(400).json({ message: 'Already liked, sorry mate!!' })
 		}
 
-		post.like.unshift({ user: req.user.id })
+		post.likes.unshift({ user: req.user.id })
+
+		await post.save()
+
+		return res.status(200).json(post.likes)
 	} catch (error) {
 		res.status(400).json({ message: `${error}`.red })
 	}
@@ -106,10 +109,9 @@ exports.likePost = asyncHandler(async (req, res) => {
 // @route PUT /api/posts/unlike/:id
 // @access Private
 
-exports.unlikePost = asyncHandler(async (req, res) => {
+exports.unlikePost = asyncHandler(checkObjectId('id'), async (req, res) => {
 	try {
-		const { id } = req.params
-		const post = await Post.findById(id)
+		const post = await Post.findById(req.params.id)
 
 		if (!post.likes.some(like => like.user.toString() === req.user.id)) {
 			return res.status(400).json({ message: 'Not yet benn liked!' })
@@ -129,7 +131,7 @@ exports.unlikePost = asyncHandler(async (req, res) => {
 // @route POST /api/posts/comment/:id
 // @access Private
 
-exports.commentPost = asyncHandler(async (req, res) => {
+exports.commentPost = asyncHandler(checkObjectId("id"),async (req, res) => {
 	try {
 		const user = await User.findById(req.user.id)
 		const post = await Post.findById(req.params.id)
