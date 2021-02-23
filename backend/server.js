@@ -5,6 +5,7 @@ const colors = require('colors')
 const index = require('./routes/index')
 const auth = require('./routes/users-routes')
 const post = require('./routes/post-routes')
+const profile = require('./routes/profile-routes')
 const connectDB = require('./config/db')
 const morgan = require('morgan')
 
@@ -23,6 +24,7 @@ app.use(express.json())
 app.use('/', index)
 app.use('/api/users', auth)
 app.use('/api/posts', post)
+app.use('/api/profile', profile)
 
 const PORT = process.env.PORT || 5000
 

@@ -1,4 +1,3 @@
-const axios = require('axios')
 const asyncHandler = require('express-async-handler')
 const normalize = require('normalize-url')
 const axios = require('axios')
@@ -7,7 +6,6 @@ const config = require('config')
 const Post = require('../models/Post')
 const User = require('../models/User')
 const Profile = require('../models/Profile')
-const checkObjectId = require('../middlewares/checkObjectId')
 
 // @desc Get current users profile
 // @route GET /api/profile/me
@@ -98,7 +96,7 @@ exports.getAllProfiles = asyncHandler(async (req, res) => {
 // @route GET /api/profile/user/:user_id
 // @access Public
 
-exports.getProfileById = asyncHandler(checkObjectId("user_id"),async({params:{user_id}}), (req, res) => {
+exports.getProfileById = asyncHandler(async (req, res) => {
 	try {
 		const profile = await Profile.findOne({
 			user: user_id,
